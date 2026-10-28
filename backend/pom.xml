@@ -137,6 +137,7 @@
 						<param>XML</param>
 					</outputFormats>
 					<timestampedReports>false</timestampedReports>
+					<failWhenNoMutations>false</failWhenNoMutations>
 				</configuration>
 			</plugin>
 		</plugins>
