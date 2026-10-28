@@ -95,14 +95,16 @@
 				</dependencies>
 				<configuration>
 					<targetClasses>
-						<param>bbzbl_it_m450.speedreader.*</param>
+						<param>bbzbl_it_m450.speedreader.service.ReadingPlanCalculator</param>
+						<param>bbzbl_it_m450.speedreader.service.ReadingSessionService</param>
+						<param>bbzbl_it_m450.speedreader.service.ReadingStatisticsService</param>
 					</targetClasses>
 					<targetTests>
-						<param>bbzbl_it_m450.speedreader.*Test</param>
+						<param>bbzbl_it_m450.speedreader.service.*Test</param>
 					</targetTests>
-					<excludedClasses>
-						<param>bbzbl_it_m450.speedreader.SpeedreaderApplication</param>
-					</excludedClasses>
+					<mutators>
+						<mutator>DEFAULTS</mutator>
+					</mutators>
 					<outputFormats>
 						<param>HTML</param>
 						<param>XML</param>
