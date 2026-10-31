@@ -1,0 +1,89 @@
+<svg width="0" height="0" style="position: absolute">
+  <clipPath id="lens" clipPathUnits="objectBoundingBox"><path d="M0 .5Q.5-.5 1 .5Q.5 1.5 0 .5Z" /></clipPath>
+</svg>
+
+<div class="scene" aria-hidden="true">
+  <div class="head">
+    <svg viewBox="0 0 400 160">
+      <defs>
+        <pattern id="scales" width="20" height="14" patternUnits="userSpaceOnUse"><path d="M0 9Q10-2 20 9M-10 16Q0 5 10 16M10 16Q20 5 30 16" /></pattern>
+        <radialGradient id="fade"><stop offset="0" stop-color="#fff" /><stop offset=".4" stop-color="#777" /><stop offset="1" stop-color="#000" /></radialGradient>
+        <mask id="near-eye"><ellipse cx="200" cy="80" rx="170" ry="76" fill="url(#fade)" stroke="none" /></mask>
+        <linearGradient id="lit" gradientUnits="userSpaceOnUse" x1="0" y1="30" x2="0" y2="130"><stop offset="0" stop-color="#ff8a3a" stop-opacity="0" /><stop offset=".5" stop-color="#ffb35c" stop-opacity=".85" /><stop offset="1" stop-color="#ff8a3a" stop-opacity="0" /></linearGradient>
+      </defs>
+      <rect width="400" height="160" fill="url(#scales)" stroke="none" mask="url(#near-eye)" opacity=".3" />
+      <path fill="url(#lit)" stroke="none" d="M112 80Q200 0 288 80Q200 30 112 80ZM120 82Q200 156 280 82Q200 128 120 82Z" />
+    </svg>
+    <div class="eye"><i class="pupil"></i></div>
+  </div>
+  <div class="embers">
+    <i style="--x:3%;--d:12s;--t:-1s;--dx:30px"></i><i style="--x:8%;--d:15s;--t:-9s;--dx:-24px;--s:2px"></i><i style="--x:13%;--d:10s;--t:-4s;--dx:40px;--s:4px"></i><i style="--x:18%;--d:13s;--t:-11s;--dx:-30px"></i>
+    <i style="--x:23%;--d:16s;--t:-6s;--dx:26px;--s:2px"></i><i style="--x:28%;--d:11s;--t:-2s;--dx:-36px"></i><i style="--x:6%;--d:14s;--t:-13s;--dx:22px;--s:2px"></i><i style="--x:25%;--d:12s;--t:-8s;--dx:34px;--s:4px"></i>
+    <i style="--x:72%;--d:13s;--t:-3s;--dx:-28px"></i><i style="--x:77%;--d:10s;--t:-7s;--dx:36px;--s:4px"></i><i style="--x:82%;--d:15s;--t:-12s;--dx:-22px;--s:2px"></i><i style="--x:87%;--d:12s;--t:-5s;--dx:30px"></i>
+    <i style="--x:92%;--d:16s;--t:-10s;--dx:-34px;--s:2px"></i><i style="--x:97%;--d:11s;--t:-1s;--dx:-26px"></i><i style="--x:75%;--d:14s;--t:-14s;--dx:24px;--s:2px"></i><i style="--x:94%;--d:13s;--t:-6s;--dx:-30px;--s:4px"></i>
+  </div>
+  <svg class="hoard" viewBox="0 0 1200 200" preserveAspectRatio="xMidYMax slice">
+    <defs>
+      <pattern id="coins" width="96" height="28" patternUnits="userSpaceOnUse" stroke="#2e1c07" stroke-width=".8"><rect width="96" height="28" fill="#3d250b" stroke="none" />
+        <g fill="#d4a043"><ellipse cx="8" cy="5" rx="7" ry="2.6" /><ellipse cx="41" cy="7" rx="7.5" ry="2.8" /><ellipse cx="76" cy="6" rx="7" ry="2.6" /><ellipse cx="33" cy="15" rx="6.5" ry="2.4" /><ellipse cx="50" cy="13" rx="7" ry="2.6" /><ellipse cx="86" cy="13" rx="7" ry="2.6" /><ellipse cx="6" cy="22" rx="6" ry="2.2" /><ellipse cx="43" cy="22" rx="6.5" ry="2.4" /><ellipse cx="61" cy="24" rx="7" ry="2.6" /></g>
+        <g fill="#9c6e26"><ellipse cx="25" cy="3" rx="6" ry="2.2" /><ellipse cx="58" cy="4" rx="6.5" ry="2.4" /><ellipse cx="90" cy="2" rx="5.5" ry="2" /><ellipse cx="15" cy="13" rx="7" ry="2.6" /><ellipse cx="68" cy="15" rx="6" ry="2.2" /><ellipse cx="24" cy="23" rx="7" ry="2.6" /><ellipse cx="80" cy="22" rx="6" ry="2.2" /></g></pattern>
+      <linearGradient id="shade" x2="0" y2="1"><stop offset="0" stop-color="#ffd27a" stop-opacity=".3" /><stop offset=".12" stop-color="#1a0e05" stop-opacity="0" /><stop offset=".5" stop-color="#140b04" stop-opacity=".9" /><stop offset="1" stop-color="#0b0605" /></linearGradient>
+      <path id="front" d="M0 150C150 112 300 132 450 108S700 124 820 104 1060 126 1200 116V200H0Z" />
+      <path id="back" d="M0 110C140 66 260 90 400 68S640 40 780 72 1040 50 1200 86V200H0Z" />
+    </defs>
+    <use href="#back" fill="url(#coins)" />
+    <use href="#back" fill="#0b0605" opacity=".82" />
+    <path class="relic" fill="#24160b" transform="rotate(-14 250 128)" d="M247 128V58H232V53H247V36H253V53H268V58H253V128ZM250 26a5 5 0 1 0 0 10a5 5 0 1 0 0-10Z" />
+    <path class="relic" fill="#9a6a1e" transform="rotate(8 919 104)" d="M898 106L895 82L908 93L919 72L930 93L943 82L940 106Z" />
+    <use href="#front" fill="url(#coins)" />
+    <use href="#front" fill="url(#shade)" />
+  </svg>
+  <div class="glints">
+    <i style="--x:5%;--y:7vh;--t:-1s"></i><i style="--x:14%;--y:10vh;--t:-4.5s"></i><i style="--x:27%;--y:12vh;--t:-2.5s"></i><i style="--x:41%;--y:13vh;--t:-6s"></i>
+    <i style="--x:58%;--y:13vh;--t:-3.5s"></i><i style="--x:73%;--y:12vh;--t:-5.5s"></i><i style="--x:85%;--y:9vh;--t:-0.5s"></i><i style="--x:95%;--y:6vh;--t:-3s"></i>
+  </div>
+</div>
+
+<main>
+  @if (words().length) {
+    <section class="reader">
+      <p class="word" (click)="toggle()" [style.--n]="word()[2].length + 1"><span class="pre">{{ word()[0] }}</span><span class="pivot">{{ word()[1] }}</span><span class="post">{{ word()[2] }}</span></p>
+      <div class="controls">
+        <button class="play" type="button" [attr.aria-label]="playing() ? 'Pause' : 'Play'" (click)="toggle()">
+          @if (playing()) {
+            <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z" /></svg>
+          } @else {
+            <svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" /></svg>
+          }
+        </button>
+        <input #seek class="seek" type="range" min="0" [max]="words().length - 1" [value]="index()" aria-label="Progress"
+          [style.--v.%]="(index() / (words().length - 1 || 1)) * 100" (input)="index.set(seek.valueAsNumber)" />
+        <div class="pace">
+          <label for="wpm">Pace</label>
+          <input #speed id="wpm" type="range" min="100" max="1000" step="25" [value]="wpm()"
+            [style.--v.%]="((wpm() - 100) / 900) * 100" (input)="wpm.set(speed.valueAsNumber)" />
+          <output for="wpm">{{ wpm() }} wpm</output>
+        </div>
+        <label class="open">
+          <input #more type="file" accept=".txt,text/plain" (change)="pick(more)" />
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12a2 2 0 0 1 0 4h-2v10a2 2 0 0 1-2 2H5a2 2 0 0 1 0-4h2V6a2 2 0 0 1 2-2" /></svg>
+          <span>Open another scroll</span>
+        </label>
+      </div>
+    </section>
+  } @else {
+    <section class="intro">
+      <h1>Wordhoard</h1>
+      <p class="tag">Swift reading in a sleeping dragon's lair</p>
+      <label class="drop">
+        <input #picker type="file" accept=".txt,text/plain" (change)="pick(picker)" />
+        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12 8h26a4 4 0 0 1 0 8h-4v22a4 4 0 0 1-4 4H10a4 4 0 0 1 0-8h4V12a4 4 0 0 1 4-4M14 34h16M20 18h10M20 24h10M20 30h6" /></svg>
+        <b>Drop a scroll here</b>
+        <small>or click to choose a .txt file</small>
+      </label>
+      @if (error()) {
+        <p class="error" role="alert">{{ error() }}</p>
+      }
+    </section>
+  }
+</main>
