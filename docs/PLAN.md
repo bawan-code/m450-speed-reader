@@ -18,7 +18,7 @@ Deadline: oral demo ("Fachgespräch") at the end of **week 3** of the quarter. A
 | Phase 0 foundation | Done (PR #1) |
 | `ReadingSessionService` + tests | Done (PR #2), PIT 31/31 mutants killed |
 | CI with tests, PIT and report artifact | Done, in `.github/workflows/ci.yml` |
-| `ReadingPlanCalculator` + tests (A) | Not started |
+| `ReadingPlanCalculator` + tests (A) | Done on `feature/a-reading-plan-calculator`, PIT 39/39 mutants killed, PR still to do (A5) |
 | `ReadingStatisticsService` with TDD (C) | Not started |
 | `mutationThreshold`, `docs/mutation-testing.md` (B), `docs/tdd-log.md` (C) | Not started |
 
@@ -313,10 +313,10 @@ B has the most hours overall but the least left, so B is also the backup if A or
 - `test/.../service/ReadingPlanCalculatorTest.java`
 
 **Checklist**
-- [ ] A1 Branch `feature/a-reading-plan-calculator`. Create DTO records.
-- [ ] A2 Implement `tokenize`, `orpIndex`, `delayMs`, `createPlan` per §2.2. Keep methods small, no logging, no unreachable branches.
-- [ ] A3 Write `ReadingPlanCalculatorTest` (cases in §6.1) with `@Nested` classes per method and `@ParameterizedTest` for tables (ORP, delay).
-- [ ] A4 Run PIT, open the HTML report, kill every surviving mutant of `ReadingPlanCalculator`. Note each survivor and which test killed it, and give the list to B (input for B7).
+- [x] A1 Branch `feature/a-reading-plan-calculator`. Create DTO records.
+- [x] A2 Implement `tokenize`, `orpIndex`, `delayMs`, `createPlan` per §2.2. Keep methods small, no logging, no unreachable branches.
+- [x] A3 Write `ReadingPlanCalculatorTest` (cases in §6.1) with `@Nested` classes per method and `@ParameterizedTest` for tables (ORP, delay).
+- [x] A4 Run PIT, open the HTML report, kill every surviving mutant of `ReadingPlanCalculator`. Note each survivor and which test killed it, and give the list to B (input for B7).
 - [ ] A5 PR → C reviews → merge.
 
 ### 4.2 Person B – Mocking unit, PIT, CI
