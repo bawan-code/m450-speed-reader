@@ -1,21 +1,32 @@
 # Work Plan – M450 LB1 Unit-Testing (Speed Reader Backend)
 
-Two people (**A** and **B**) build and test the Speed Reader backend in parallel.
-Deadline: oral demo ("Fachgespräch") at the end of **week 3** of the quarter. Both must be able to explain **every** part.
+Three people (**A**, **B** and **C**) build and test the Speed Reader backend in parallel.
+Deadline: oral demo ("Fachgespräch") at the end of **week 3** of the quarter. All three must be able to explain **every** part.
 
 | # | Criterion | Weight | Owner |
 |---|-----------|--------|-------|
 | 1 | Unit test with mocking – `ReadingSessionService` | 10 | B |
 | 2 | Unit test for logic – `ReadingPlanCalculator` | 10 | A |
-| 3 | Mutation testing (PIT, 100 % for #1 and #2, HTML report, explain mutators) | 10 | A (setup, CI, report, mutator doc) + each owner kills the mutants of their unit |
-| 4 | TDD – `ReadingStatisticsService` (Red → Green → Refactor commits) | 10 | B |
-| 5 | Automation – GitHub Actions on every push | 5 | A |
+| 3 | Mutation testing (PIT, 100 % for #1 and #2, HTML report, explain mutators) | 10 | B (CI, threshold, report, mutator doc) + each owner kills the mutants of their unit |
+| 4 | TDD – `ReadingStatisticsService` (Red → Green → Refactor commits) | 10 | C |
+| 5 | Automation – GitHub Actions on every push | 5 | B |
+
+**Status (2026-11-04):**
+
+| Part | State |
+|---|---|
+| Phase 0 foundation | Done (PR #1) |
+| `ReadingSessionService` + tests | Done (PR #2), PIT 31/31 mutants killed |
+| CI with tests, PIT and report artifact | Done, in `.github/workflows/ci.yml` |
+| `ReadingPlanCalculator` + tests (A) | Not started |
+| `ReadingStatisticsService` with TDD (C) | Not started |
+| `mutationThreshold`, `docs/mutation-testing.md` (B), `docs/tdd-log.md` (C) | Not started |
 
 ---
 
 ## 0. Things to fix in the current repo first
 
-The repo state today (`backend/`) does not match the stack described in the assignment:
+**All done in Phase 0, kept for reference.** The repo state at the start (`backend/`) did not match the stack described in the assignment:
 
 | Topic | Current repo | Assignment / plan | Action (Phase 0) |
 |---|---|---|---|
@@ -53,7 +64,7 @@ backend/src/main/java/bbzbl_it_m450/speedreader/
 └── service/
     ├── ReadingPlanCalculator.java      // Part 2 – pure logic                                (A)
     ├── ReadingSessionService.java      // Part 1 – uses repositories                         (B)
-    ├── ReadingStatisticsService.java   // Part 4 – TDD, does NOT exist before the Red commit (B)
+    ├── ReadingStatisticsService.java   // Part 4 – TDD, does NOT exist before the Red commit (C)
     └── dto/
         ├── WordTiming.java             // record                                             (A)
         ├── ReadingPlan.java            // record                                             (A)
@@ -62,7 +73,7 @@ backend/src/main/java/bbzbl_it_m450/speedreader/
 backend/src/test/java/bbzbl_it_m450/speedreader/service/
 ├── ReadingPlanCalculatorTest.java      (A)
 ├── ReadingSessionServiceTest.java      (B)
-└── ReadingStatisticsServiceTest.java   (B)
+└── ReadingStatisticsServiceTest.java   (C)
 ```
 
 No controllers are needed for LB1. If a REST layer for the Angular frontend is added later, it is **not** in PIT's `targetClasses`.
@@ -86,8 +97,8 @@ public interface TextRepository extends JpaRepository<Text, Long> {}
 
 public interface ReadingSessionRepository extends JpaRepository<ReadingSession, Long> {
     List<ReadingSession> findByUserIdOrderByDateDesc(Long userId);
-    List<ReadingSession> findTop5ByUserIdOrderByDateDesc(Long userId);   // used by TDD (B)
-    List<ReadingSession> findByUserId(Long userId);                       // used by TDD (B)
+    List<ReadingSession> findTop5ByUserIdOrderByDateDesc(Long userId);   // used by TDD (C)
+    List<ReadingSession> findByUserId(Long userId);                       // used by TDD (C)
 }
 
 public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
@@ -99,7 +110,7 @@ Repositories are only ever **mocked** in LB1. No `application.properties` dataso
 
 ### 1.4 pom.xml plugins and CI
 
-`pom.xml` (Phase 0 sets it up, A refines it later):
+`pom.xml` (Phase 0 sets it up, B refines it later):
 
 ```xml
 <plugin>
@@ -125,7 +136,7 @@ Repositories are only ever **mocked** in LB1. No `application.properties` dataso
     <mutators><mutator>DEFAULTS</mutator></mutators>
     <outputFormats><param>HTML</param><param>XML</param></outputFormats>
     <timestampedReports>false</timestampedReports>
-    <!-- enabled by A at the end of week 2, once both units are at 100 % -->
+    <!-- enabled by B at the end of week 2, once all target classes are at 100 % -->
     <!-- <mutationThreshold>100</mutationThreshold> -->
   </configuration>
 </plugin>
@@ -133,7 +144,7 @@ Repositories are only ever **mocked** in LB1. No `application.properties` dataso
 
 Report location: `backend/target/pit-reports/index.html`.
 
-CI workflow `.github/workflows/ci.yml` (Phase 0 = minimal version, A extends it):
+CI workflow `.github/workflows/ci.yml` (already in the repo, owned by B; simplified here, the file itself is the reference):
 
 ```yaml
 name: CI
@@ -149,15 +160,15 @@ jobs:
       - uses: actions/setup-java@v4
         with: { distribution: temurin, java-version: '21', cache: maven }
       - run: ./mvnw -B test
-      - run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage     # added by A
-      - uses: actions/upload-artifact@v4                              # added by A
+      - run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage
+      - uses: actions/upload-artifact@v4
         if: always()
         with: { name: pit-report, path: backend/target/pit-reports }
 ```
 
 ---
 
-## 2. Contracts (agreed up front – do not change without telling the other person)
+## 2. Contracts (agreed up front – do not change without telling the others)
 
 ### 2.1 Shared (Phase 0)
 
@@ -245,7 +256,7 @@ public class ReadingSessionService {
 
 A `Clock` is injected so the date is deterministic in tests (needs a `@Bean Clock clock() { return Clock.systemDefaultZone(); }` in a config class).
 
-### 2.4 ReadingStatisticsService (B, built with TDD – signatures only, no code before Red!)
+### 2.4 ReadingStatisticsService (C, built with TDD – signatures only, no code before Red!)
 
 ```java
 public OptionalDouble getAverageWpm(Long userId);
@@ -262,20 +273,20 @@ public int getRecommendedWpm(Long userId);
 
 ---
 
-## 3. Phase 0 – Shared foundation (together, ~3 h, day 1–2)
+## 3. Phase 0 – Shared foundation (done)
 
-Do this as **one pair-programming session** on branch `chore/foundation` so both understand the base. Swap the keyboard halfway.
+Done on branch `chore/foundation` before C joined. C catches up with task C0 (§4.3).
 
-- [ ] 0.1 Align pom.xml with the agreed stack (§0): Boot 3.5.x, Java 21, `spring-boot-starter-test`, keep Lombok, MySQL driver, PIT plugin.
-- [ ] 0.2 Delete `SpeedreaderApplicationTests.java`.
-- [ ] 0.3 Create `common/WpmLimits`, `common/ResourceNotFoundException`, `ClockConfig` (Clock bean).
-- [ ] 0.4 Create the 4 entities and 4 repository interfaces (§1.2, §1.3).
-- [ ] 0.5 Narrow PIT `targetClasses` / `targetTests` (§1.4).
-- [ ] 0.6 **PIT smoke test**: one throw-away test, run `mvnw test` and `mvnw org.pitest:pitest-maven:mutationCoverage` locally, check `target/pit-reports/index.html` is produced. Remove the throw-away test.
-- [ ] 0.7 Minimal `.github/workflows/ci.yml` with `mvnw -B test`. Make `mvnw` executable in git: `git update-index --chmod=+x backend/mvnw`.
-- [ ] 0.8 Merge to `main`, check CI is green on GitHub.
+- [x] 0.1 Align pom.xml with the agreed stack (§0): Boot 3.5.x, Java 21, `spring-boot-starter-test`, keep Lombok, MySQL driver, PIT plugin.
+- [x] 0.2 Delete `SpeedreaderApplicationTests.java`.
+- [x] 0.3 Create `common/WpmLimits`, `common/ResourceNotFoundException`, `ClockConfig` (Clock bean).
+- [x] 0.4 Create the 4 entities and 4 repository interfaces (§1.2, §1.3).
+- [x] 0.5 Narrow PIT `targetClasses` / `targetTests` (§1.4).
+- [x] 0.6 **PIT smoke test**: one throw-away test, run `mvnw test` and `mvnw org.pitest:pitest-maven:mutationCoverage` locally, check `target/pit-reports/index.html` is produced. Remove the throw-away test.
+- [x] 0.7 Minimal `.github/workflows/ci.yml` with `mvnw -B test`. Make `mvnw` executable in git: `git update-index --chmod=+x backend/mvnw`.
+- [x] 0.8 Merge to `main`, check CI is green on GitHub.
 
-After 0.8, A and B work independently.
+A, B and C work independently from here.
 
 ---
 
@@ -283,78 +294,88 @@ After 0.8, A and B work independently.
 
 ### Estimated workload
 
-| | Person A | Person B |
-|---|---|---|
-| Implementation | Calculator 3 h | Session service 2.5 h, statistics (in TDD) — |
-| Tests | Calculator tests 5 h | Session tests 4 h, TDD cycles 5 h |
-| PIT to 100 % | 2 h | 2 h |
-| Automation / docs | CI + PIT step + threshold + artifact 2 h, mutator explanation doc 1.5 h | TDD commit log doc 1 h |
-| Reviews | Review B's PRs 1.5 h | Review A's PRs 1.5 h |
-| **Total** | **≈ 15 h** | **≈ 16 h** |
+| | Person A | Person B | Person C |
+|---|---|---|---|
+| Onboarding | — | — | 1.5 h |
+| Implementation | Calculator 3 h | Session service 2.5 h (done) | Statistics (in TDD) — |
+| Tests | Calculator tests 5 h | Session tests 4 h (done) | TDD cycles 5 h |
+| PIT to 100 % | 2 h | 2 h (done) | 1.5 h |
+| Automation / docs | — | Threshold + CI check 1.5 h, mutator explanation doc 1.5 h, demo trick + final checklist 1 h | TDD commit log doc 1 h |
+| Reviews | Review B's PRs 1 h | Review C's PRs 1 h | Review A's PRs 1 h |
+| **Total** | **≈ 11 h** | **≈ 13.5 h (5 h left)** | **≈ 10 h** |
 
-B's TDD work is heavier in tests; A compensates with CI, PIT config and the mutator explanation used in the demo.
+B has the most hours overall but the least left, so B is also the backup if A or C gets stuck.
 
-### 4.1 Person A – Logic unit, PIT, CI
+### 4.1 Person A – Logic unit
 
 **Owned files** (only A edits these):
 - `service/ReadingPlanCalculator.java`, `service/dto/WordTiming.java`, `service/dto/ReadingPlan.java`
 - `test/.../service/ReadingPlanCalculatorTest.java`
-- `.github/workflows/ci.yml`
-- PIT `<configuration>` block in `pom.xml` (after Phase 0)
-- `docs/mutation-testing.md`
 
 **Checklist**
 - [ ] A1 Branch `feature/a-reading-plan-calculator`. Create DTO records.
 - [ ] A2 Implement `tokenize`, `orpIndex`, `delayMs`, `createPlan` per §2.2. Keep methods small, no logging, no unreachable branches.
 - [ ] A3 Write `ReadingPlanCalculatorTest` (cases in §6.1) with `@Nested` classes per method and `@ParameterizedTest` for tables (ORP, delay).
-- [ ] A4 Run PIT, open the HTML report, kill every surviving mutant of `ReadingPlanCalculator`. Note each survivor and which test killed it (input for A8).
-- [ ] A5 PR → B reviews → merge.
-- [ ] A6 Branch `chore/a-ci-pit`: add PIT step + `upload-artifact` for the HTML report to the workflow. Optionally a status badge in `README.md`.
-- [ ] A7 End of week 2, after B's units are merged at 100 %: enable `<mutationThreshold>100</mutationThreshold>` so CI fails if a mutant survives. Verify by temporarily deleting one assertion locally (CI must go red).
-- [ ] A8 Write `docs/mutation-testing.md`: list of PIT DEFAULTS mutators with one concrete example **from our code** each (see §7.1), how to run PIT, where the report is, screenshot of 100 %.
+- [ ] A4 Run PIT, open the HTML report, kill every surviving mutant of `ReadingPlanCalculator`. Note each survivor and which test killed it, and give the list to B (input for B7).
+- [ ] A5 PR → C reviews → merge.
 
-### 4.2 Person B – Mocking unit, TDD
+### 4.2 Person B – Mocking unit, PIT, CI
 
 **Owned files** (only B edits these):
 - `service/ReadingSessionService.java`, `service/dto/RecordSessionRequest.java`
+- `test/.../service/ReadingSessionServiceTest.java`
+- `.github/workflows/ci.yml`
+- PIT `<configuration>` block in `pom.xml`
+- `docs/mutation-testing.md`
+
+**Checklist**
+- [x] B1 Branch `feature/b-session-service`. Implement `ReadingSessionService` per §2.3.
+- [x] B2 Write `ReadingSessionServiceTest` (cases in §6.2): `@ExtendWith(MockitoExtension.class)`, `@Mock` for the 4 repositories, `Clock.fixed(...)`, service built manually in `@BeforeEach` (because Clock is not a mock). Use `ArgumentCaptor`, `verify`, `verify(..., never())`, `verifyNoInteractions`, `assertThrows`.
+- [x] B3 Run PIT, kill every surviving mutant of `ReadingSessionService`.
+- [x] B4 PR → merge.
+- [ ] B5 Check on GitHub that CI runs tests + PIT on every push and that the `pit-report` artifact is downloadable. Optionally add a status badge in `README.md` (branch `chore/b-ci-pit`).
+- [ ] B6 End of week 2, after A's and C's units are merged at 100 %: enable `<mutationThreshold>100</mutationThreshold>` so CI fails if a mutant survives. The threshold covers all `targetClasses`, so **it must come after both merges**. If `ReadingStatisticsService` cannot reach 100 % in time, remove it from `targetClasses` instead of lowering the threshold. Verify by temporarily deleting one assertion locally (CI must go red).
+- [ ] B7 Write `docs/mutation-testing.md`: list of PIT DEFAULTS mutators with one concrete example **from our code** each (see §7.1), how to run PIT, where the report is, screenshot of 100 %.
+- [ ] B8 Prepare the demo trick and own the final checklist (§8).
+
+### 4.3 Person C – TDD
+
+**Owned files** (only C edits these):
 - `service/ReadingStatisticsService.java`
-- `test/.../service/ReadingSessionServiceTest.java`, `test/.../service/ReadingStatisticsServiceTest.java`
+- `test/.../service/ReadingStatisticsServiceTest.java`
 - `docs/tdd-log.md`
 
 **Checklist**
-- [ ] B1 Branch `feature/b-session-service`. Implement `ReadingSessionService` per §2.3.
-- [ ] B2 Write `ReadingSessionServiceTest` (cases in §6.2): `@ExtendWith(MockitoExtension.class)`, `@Mock` for the 4 repositories, `Clock.fixed(...)`, service built manually in `@BeforeEach` (because Clock is not a mock). Use `ArgumentCaptor`, `verify`, `verify(..., never())`, `verifyNoInteractions`, `assertThrows`.
-- [ ] B3 Run PIT, kill every surviving mutant of `ReadingSessionService`.
-- [ ] B4 PR → A reviews → merge.
-- [ ] B5 Branch `feature/b-tdd-statistics`. Follow the TDD cycles in §6.3. **Each phase = one commit**:
+- [ ] C0 Onboarding: pull `main`, run `mvnw test` and PIT locally, open the report. Read `ReadingSession`, `ReadingSessionRepository`, `ReadingSessionService` and its test (the mocking style to follow), and §2.4, §6.3, §7. Ask B about anything unclear.
+- [ ] C1 Branch `feature/c-tdd-statistics`. Follow the TDD cycles in §6.3. **Each phase = one commit**:
   - `test(red): getAverageWpm returns empty when no sessions` (test fails / does not compile)
   - `feat(green): ...` (minimal code, all tests green)
   - `refactor: ...` (only if something to clean up; tests stay green)
-  Run `mvnw test` before every commit and paste the result line (failures/green) in the commit body.
-- [ ] B6 Run PIT on `ReadingStatisticsService` too and get it to 100 % (bonus, shows test quality).
-- [ ] B7 Write `docs/tdd-log.md`: table *cycle → red commit hash → green commit hash → refactor commit hash → what changed*.
-- [ ] B8 PR → A reviews → merge **with a merge commit (no squash, no rebase-squash)**, otherwise the TDD history is lost.
+  Run `mvnw test` before every commit and paste the result line (failures/green) in the commit body. CI going red on this branch after a Red commit is expected.
+- [ ] C2 Run PIT on `ReadingStatisticsService` too and get it to 100 %. The rubric doesn't require it, but B's threshold (B6) covers this class.
+- [ ] C3 Write `docs/tdd-log.md`: table *cycle → red commit hash → green commit hash → refactor commit hash → what changed*.
+- [ ] C4 PR → B reviews → merge **with a merge commit (no squash, no rebase-squash)**, otherwise the TDD history is lost.
 
 ---
 
 ## 5. Git workflow
 
 - `main` is always green. Nobody commits directly to `main` after Phase 0.
-- Branch names: `feature/a-…`, `feature/b-…`, `chore/a-…`.
-- Small PRs (one unit or one CI change per PR). The other person reviews **every** PR — this is how both learn all parts for the demo.
-- Before opening a PR: `git pull origin main`, merge/rebase main into the branch, `mvnw test` + PIT locally green.
+- Branch names: `feature/a-…`, `feature/b-…`, `feature/c-…`, `chore/b-…`.
+- Small PRs (one unit or one CI change per PR). Every PR gets one reviewer: **C reviews A, A reviews B, B reviews C**. Merged PRs are also read by the third person — this is how all three learn all parts for the demo.
+- Before opening a PR: `git pull origin main`, merge/rebase main into the branch, `mvnw test` + PIT locally green. On the TDD branch **only merge, never rebase**, otherwise the hashes in `docs/tdd-log.md` no longer match.
 - Merge strategy: **merge commit** for all PRs (required for the TDD branch, simplest to keep consistent).
-- Conflict hot spot: `pom.xml`. Only A changes the PIT block; if B needs a pom change, tell A or do it in a separate tiny PR.
+- Conflict hot spot: `pom.xml`. Only B changes the PIT block; if A or C needs a pom change, tell B or do it in a separate tiny PR.
 - Commit at least daily, push daily so CI runs.
 
 ### Schedule
 
-| Week | A | B |
-|---|---|---|
-| 1 | Phase 0 (together) → A1–A3 | Phase 0 (together) → B1–B2 |
-| 2 | A4–A6, review B's PR, A7 at end of week | B3–B4, B5 (TDD), review A's PR |
-| 3 (first half) | A8, demo rehearsal | B6–B8, demo rehearsal |
-| 3 (end) | **Demo** | **Demo** |
+| Week | A | B | C |
+|---|---|---|---|
+| 1 | A1–A3 | B5, help C with C0 | C0, C1 (cycles 1–6) |
+| 2 | A4–A5, review B's PR | Start B7, review C's PR, B6 at end of week | C1 (cycles 7–13), C2–C4, review A's PR |
+| 3 (first half) | Demo rehearsal | B7–B8, demo rehearsal | Demo rehearsal |
+| 3 (end) | **Demo** | **Demo** | **Demo** |
 
 ---
 
@@ -451,7 +472,7 @@ Fixture: `user(id=1)`, `text(id=10, wordCount=100)`, `Clock.fixed(2026-11-02T10:
 - `getSessionsForUser` → returns the list from `findByUserIdOrderByDateDesc` (assert same list, verify called with id 1); empty list → empty list (kills EMPTY_RETURNS confusion only if non-empty case is also tested); unknown user → exception and repository query never called.
 - `deleteSession` exists → `verify(sessions).deleteById(5L)`; not exists → exception and `verify(sessions, never()).deleteById(any())`.
 
-### 6.3 ReadingStatisticsServiceTest – TDD cycles (B)
+### 6.3 ReadingStatisticsServiceTest – TDD cycles (C)
 
 Each row = one Red → Green (→ Refactor) cycle, in this order.
 
@@ -513,7 +534,7 @@ Each row = one Red → Green (→ Refactor) cycle, in this order.
 ## 8. Final checklist before the demo
 
 **Code & tests**
-- [ ] `mvnw test` green locally (both people, on both machines).
+- [ ] `mvnw test` green locally (all three people, on all three machines).
 - [ ] No `@SpringBootTest`, no real DB access; all repositories are `@Mock`.
 - [ ] Every test has a descriptive name (`@DisplayName` or `should…_when…`) and Arrange / Act / Assert structure.
 
@@ -521,7 +542,7 @@ Each row = one Red → Green (→ Refactor) cycle, in this order.
 - [ ] PIT runs without errors: `mvnw org.pitest:pitest-maven:mutationCoverage`.
 - [ ] `ReadingPlanCalculator` 100 % mutation score.
 - [ ] `ReadingSessionService` 100 % mutation score.
-- [ ] (Bonus) `ReadingStatisticsService` 100 %.
+- [ ] `ReadingStatisticsService` 100 % (not required by the rubric, needed for the threshold, see B6).
 - [ ] HTML report available locally (`backend/target/pit-reports/index.html`) **and** as CI artifact; screenshot in `docs/mutation-testing.md`.
 - [ ] `mutationThreshold=100` active.
 
@@ -533,10 +554,10 @@ Each row = one Red → Green (→ Refactor) cycle, in this order.
 - [ ] Red / Green / Refactor commits visible in `git log --oneline` on `main` (not squashed).
 - [ ] `docs/tdd-log.md` with commit hashes per cycle.
 
-**Fachgespräch – both people can explain**
+**Fachgespräch – all three people can explain**
 - [ ] Why each dependency is mocked and how `verify` / `ArgumentCaptor` / `never()` are used (Part 1).
 - [ ] The calculator rules and why each test exists (boundary values) (Part 2).
 - [ ] At least 5 PIT mutators with an example from our code, and what an equivalent mutant is (Part 3).
 - [ ] Walk through 2 TDD cycles via the commits (Part 4).
 - [ ] The CI workflow file line by line (Part 5).
-- [ ] Rehearsal done: A presents B's parts and B presents A's parts once.
+- [ ] Rehearsal done: A presents B's parts, B presents C's parts and C presents A's parts once.
