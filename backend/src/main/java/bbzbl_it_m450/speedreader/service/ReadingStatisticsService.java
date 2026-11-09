@@ -35,8 +35,16 @@ public class ReadingStatisticsService {
   }
 
   public int getRecommendedWpm(Long userId) {
-    sessions.findTop5ByUserIdOrderByDateDesc(userId);
+    List<ReadingSession> recent = sessions.findTop5ByUserIdOrderByDateDesc(userId);
+    if (recent.isEmpty()) {
+      return WpmLimits.DEFAULT_WPM;
+    }
 
-    return WpmLimits.DEFAULT_WPM;
+    int totalWpm = 0;
+    for (ReadingSession session : recent) {
+      totalWpm += session.getWpm();
+    }
+
+    return totalWpm / recent.size();
   }
 }
