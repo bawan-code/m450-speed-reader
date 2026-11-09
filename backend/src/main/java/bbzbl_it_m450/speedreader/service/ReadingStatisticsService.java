@@ -1,12 +1,12 @@
 package bbzbl_it_m450.speedreader.service;
 
+import java.util.List;
+import java.util.OptionalDouble;
+
 import org.springframework.stereotype.Service;
 
-import java.util.OptionalDouble;
-import bbzbl_it_m450.speedreader.repository.ReadingSessionRepository;
-
-import java.util.List;
 import bbzbl_it_m450.speedreader.model.ReadingSession;
+import bbzbl_it_m450.speedreader.repository.ReadingSessionRepository;
 
 @Service
 public class ReadingStatisticsService {
@@ -22,9 +22,14 @@ public class ReadingStatisticsService {
       return OptionalDouble.empty();
     }
 
-    ReadingSession session = list.get(0);
-    double minutes = session.getDurationSeconds() / 60.0;
+    int totalWords = 0;
+    int totalSeconds = 0;
+    for (ReadingSession session : list) {
+      totalWords += session.getWordsRead();
+      totalSeconds += session.getDurationSeconds();
+    }
 
-    return OptionalDouble.of(session.getWordsRead() / minutes);
+    double totalMinutes = totalSeconds / 60.0;
+    return OptionalDouble.of(totalWords / totalMinutes);
   }
 }
