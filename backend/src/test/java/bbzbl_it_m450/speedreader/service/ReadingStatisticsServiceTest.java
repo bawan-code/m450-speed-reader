@@ -115,4 +115,16 @@ class ReadingStatisticsServiceTest {
 
     assertEquals(330, result);
   }
+
+  @ParameterizedTest
+  @CsvSource({ "80, 330", "79, 300" })
+  @DisplayName("getRecommendedWpm speeds up from a mean score of exactly 80")
+  void recommendedBoundaryAtScore80(int score, int expected) {
+    ReadingSession session = ReadingSession.builder().wpm(300).comprehensionScore(score).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(session));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(expected, result);
+  }
 }
