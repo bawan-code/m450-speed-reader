@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import bbzbl_it_m450.speedreader.common.WpmLimits;
 import bbzbl_it_m450.speedreader.model.ReadingSession;
 import bbzbl_it_m450.speedreader.repository.ReadingSessionRepository;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 
 @ExtendWith(MockitoExtension.class)
 class ReadingStatisticsServiceTest {
@@ -86,5 +88,19 @@ class ReadingStatisticsServiceTest {
     int result = service.getRecommendedWpm(1L);
 
     assertEquals(310, result);
+  }
+
+  // Executes the test with the values 304, 300 and 305, 310 as parameters -
+  // parameterized test
+  @ParameterizedTest
+  @CsvSource({ "304, 300", "305, 310" })
+  @DisplayName("getRecommendedWpm rounds the mean to the nearest 10, half up")
+  void recommendedIsRoundedToTen(int wpm, int expected) {
+    ReadingSession session = ReadingSession.builder().wpm(wpm).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(session));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(expected, result);
   }
 }
