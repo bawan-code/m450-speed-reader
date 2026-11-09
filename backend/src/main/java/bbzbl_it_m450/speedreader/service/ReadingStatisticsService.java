@@ -5,6 +5,7 @@ import java.util.OptionalDouble;
 
 import org.springframework.stereotype.Service;
 
+import bbzbl_it_m450.speedreader.common.WpmLimits;
 import bbzbl_it_m450.speedreader.model.ReadingSession;
 import bbzbl_it_m450.speedreader.repository.ReadingSessionRepository;
 
@@ -31,5 +32,11 @@ public class ReadingStatisticsService {
 
     double totalMinutes = totalSeconds / 60.0;
     return OptionalDouble.of(totalWords / totalMinutes);
+  }
+
+  public int getRecommendedWpm(Long userId) {
+    sessions.findTop5ByUserIdOrderByDateDesc(userId);
+
+    return WpmLimits.DEFAULT_WPM;
   }
 }
