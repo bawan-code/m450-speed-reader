@@ -74,4 +74,17 @@ class ReadingStatisticsServiceTest {
 
     assertEquals(WpmLimits.DEFAULT_WPM, result);
   }
+
+  @Test
+  @DisplayName("getRecommendedWpm is the average of the recent session")
+  void recommendedIsAverageOfRecentWpm() {
+    ReadingSession first = ReadingSession.builder().wpm(300).build();
+    ReadingSession second = ReadingSession.builder().wpm(320).build();
+    ReadingSession third = ReadingSession.builder().wpm(310).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(first, second, third));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(310, result);
+  }
 }
