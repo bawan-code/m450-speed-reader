@@ -14,6 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import bbzbl_it_m450.speedreader.common.WpmLimits;
 import bbzbl_it_m450.speedreader.model.ReadingSession;
 import bbzbl_it_m450.speedreader.repository.ReadingSessionRepository;
 
@@ -61,5 +62,16 @@ class ReadingStatisticsServiceTest {
     OptionalDouble result = service.getAverageWpm(1L);
 
     assertEquals(233.333, result.getAsDouble(), 0.001);
+  }
+
+  @Test
+  @DisplayName("Recommended average")
+
+  void recommendedIsDefaultWhenNoSessions() {
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of());
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(WpmLimits.DEFAULT_WPM, result);
   }
 }
