@@ -116,10 +116,23 @@ class ReadingStatisticsServiceTest {
     assertEquals(330, result);
   }
 
+  // Was already green, used to test boundaries. Edges.
   @ParameterizedTest
   @CsvSource({ "80, 330", "79, 300" })
   @DisplayName("getRecommendedWpm speeds up from a mean score of exactly 80")
   void recommendedBoundaryAtScore80(int score, int expected) {
+    ReadingSession session = ReadingSession.builder().wpm(300).comprehensionScore(score).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(session));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(expected, result);
+  }
+
+  @ParameterizedTest
+  @CsvSource({ "59, 270", "60, 300" })
+  @DisplayName("getRecommendedWpm slows down when the mean score is below 60")
+  void recommendedSlowsDownForBadComprehension(int score, int expected) {
     ReadingSession session = ReadingSession.builder().wpm(300).comprehensionScore(score).build();
     when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(session));
 
