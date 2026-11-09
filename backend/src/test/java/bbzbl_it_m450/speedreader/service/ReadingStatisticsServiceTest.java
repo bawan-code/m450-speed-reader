@@ -41,7 +41,7 @@ class ReadingStatisticsServiceTest {
   }
 
   @Test
-  @DisplayName("getAverageWpm of one session is its words per minute")
+  @DisplayName("getAverageWpm of one session")
   void averageOfOneSession() {
     ReadingSession session = ReadingSession.builder().wordsRead(300).durationSeconds(60).build();
     when(sessions.findByUserId(1L)).thenReturn(List.of(session));
@@ -49,5 +49,17 @@ class ReadingStatisticsServiceTest {
     OptionalDouble result = service.getAverageWpm(1L);
 
     assertEquals(300.0, result.getAsDouble(), 0.001);
+  }
+
+  @Test
+  @DisplayName("getAverageWpm of several sessions")
+  void averageOfSeveralSessions() {
+    ReadingSession sessionFirst = ReadingSession.builder().wordsRead(600).durationSeconds(120).build();
+    ReadingSession sessionSecond = ReadingSession.builder().wordsRead(100).durationSeconds(60).build();
+    when(sessions.findByUserId(1L)).thenReturn(List.of(sessionFirst, sessionSecond));
+
+    OptionalDouble result = service.getAverageWpm(1L);
+
+    assertEquals(233.333, result.getAsDouble(), 0.001);
   }
 }
