@@ -103,4 +103,16 @@ class ReadingStatisticsServiceTest {
 
     assertEquals(expected, result);
   }
+
+  @Test
+  @DisplayName("getRecommendedWpm speeds up by 10 % when the average score is 80 or more")
+  void recommendedSpeedsUpForGoodComprehension() {
+    ReadingSession first = ReadingSession.builder().wpm(300).comprehensionScore(90).build();
+    ReadingSession second = ReadingSession.builder().wpm(300).comprehensionScore(80).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(first, second));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(330, result);
+  }
 }
