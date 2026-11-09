@@ -45,6 +45,7 @@ public class ReadingStatisticsService {
       totalWpm += session.getWpm();
     }
 
-    return totalWpm / recent.size();
+    double mean = (double) totalWpm / recent.size();
+    return (int) Math.round(mean / 10.0) * 10;
   }
 }
