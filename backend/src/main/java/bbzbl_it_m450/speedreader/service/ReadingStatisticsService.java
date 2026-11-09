@@ -45,7 +45,29 @@ public class ReadingStatisticsService {
       totalWpm += session.getWpm();
     }
 
-    double mean = (double) totalWpm / recent.size();
-    return (int) Math.round(mean / 10.0) * 10;
+    double average = (double) totalWpm / recent.size();
+    OptionalDouble score = averageScore(recent);
+
+    if (score.isPresent() && score.getAsDouble() >= 80) {
+      average = average * 1.10;
+    }
+    return (int) Math.round(average / 10.0) * 10;
+  }
+
+  // Helper function for getRecommendedWpm. Handles null, so the tests stay green.
+  private OptionalDouble averageScore(List<ReadingSession> recent) {
+    int total = 0;
+    int count = 0;
+    for (ReadingSession session : recent) {
+      Integer score = session.getComprehensionScore();
+      if (score != null) {
+        total += score;
+        count++;
+      }
+    }
+    if (count == 0) {
+      return OptionalDouble.empty();
+    }
+    return OptionalDouble.of((double) total / count);
   }
 }
