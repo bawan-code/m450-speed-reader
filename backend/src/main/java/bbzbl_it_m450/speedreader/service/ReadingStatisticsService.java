@@ -50,6 +50,8 @@ public class ReadingStatisticsService {
 
     if (score.isPresent() && score.getAsDouble() >= 80) {
       average = average * 1.10;
+    } else if (score.isPresent() && score.getAsDouble() < 60) {
+      average = average * 0.90;
     }
     return (int) Math.round(average / 10.0) * 10;
   }
