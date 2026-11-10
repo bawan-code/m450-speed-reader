@@ -4,7 +4,7 @@
 
 - **Red** – a new test that fails (or does not compile), committed before any code for it exists
 - **Green** – the least code that makes all tests pass
-- **Refactor** – none of the cycles needed one; the code stayed short enough
+- **Refactor** – none of the 13 cycles needed one; the one refactor came from PIT (see below)
 - **Passed immediately** – three tests (cycles 8, 10, 13) were green on the first run, because an earlier Green already covered them. They were kept as guards (boundary and interaction checks for PIT) and committed as test-only commits instead of faking a Red.
 
 ## Cycles
@@ -26,6 +26,17 @@
 | 13 | uses the top-5 query – `verify` top-5, `never()` `findByUserId` | `121bafc` | passed immediately (top-5 query used since cycle 4) | – | Test only |
 
 `d02f9e9` merges `main` into the branch between cycles 1 and 2 (A's calculator and the executable `mvnw`); it does not touch the statistics files.
+
+## PIT
+
+After cycle 13, PIT killed 27 of 29 mutants in `ReadingStatisticsService`. Both survivors were in the helper `averageScore`:
+
+| Mutant | Why it survived | Fix | Commit |
+|---|---|---|---|
+| `total / count` → `total * count` (MATH) | Every score test either had one scored session (÷ 1 = × 1) or kept both results on the same side of 80 | New test: scores 70 and 40 → mean 55 → 270; the mutant gives 220 → 330 | `38b9a45` (test) |
+| `count == 0` → `false` (REMOVE_CONDITIONALS) | Equivalent mutant: without the check, 0 / 0 is `NaN`, and `NaN >= 80` and `NaN < 60` are both false, so "no scores" still means no change — no test can tell the difference | Refactor: the loop became a stream ending in `IntStream.average()`, which returns empty by itself; the check no longer exists | `45f55e7` (refactor) |
+
+After both: 23 of 23 killed (the stream leaves fewer operations to mutate), 113 tests green. This is the only Refactor step: behaviour unchanged, no test touched.
 
 ## Notes
 
