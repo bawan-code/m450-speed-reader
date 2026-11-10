@@ -140,4 +140,16 @@ class ReadingStatisticsServiceTest {
 
     assertEquals(expected, result);
   }
+
+  @Test
+  @DisplayName("getRecommendedWpm ignores sessions without a score")
+  void recommendedIgnoresMissingScores() {
+    ReadingSession scored = ReadingSession.builder().wpm(300).comprehensionScore(90).build();
+    ReadingSession unscored = ReadingSession.builder().wpm(300).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(scored, unscored));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(330, result);
+  }
 }
