@@ -188,4 +188,16 @@ class ReadingStatisticsServiceTest {
     verify(sessions).findTop5ByUserIdOrderByDateDesc(1L);
     verify(sessions, never()).findByUserId(any());
   }
+
+  @Test
+  @DisplayName("getRecommendedWpm uses the mean of several scores")
+  void recommendedUsesMeanOfSeveralScores() {
+    ReadingSession first = ReadingSession.builder().wpm(300).comprehensionScore(70).build();
+    ReadingSession second = ReadingSession.builder().wpm(300).comprehensionScore(40).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(first, second));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(270, result);
+  }
 }
