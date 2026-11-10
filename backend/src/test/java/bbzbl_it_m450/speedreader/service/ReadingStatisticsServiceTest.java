@@ -163,4 +163,15 @@ class ReadingStatisticsServiceTest {
 
     assertEquals(WpmLimits.MAX_WPM, result);
   }
+
+  @Test
+  @DisplayName("getRecommendedWpm never recommends less than the minimum")
+  void recommendedIsClampedToMin() {
+    ReadingSession session = ReadingSession.builder().wpm(60).comprehensionScore(0).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(session));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(WpmLimits.MIN_WPM, result);
+  }
 }
