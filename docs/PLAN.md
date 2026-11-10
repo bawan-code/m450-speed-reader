@@ -19,8 +19,9 @@ Deadline: oral demo ("Fachgespräch") at the end of **week 3** of the quarter. A
 | `ReadingSessionService` + tests | Done (PR #2), PIT 31/31 mutants killed |
 | CI with tests, PIT and report artifact | Done, in `.github/workflows/ci.yml` |
 | `ReadingPlanCalculator` + tests (A) | Done on `feature/a-reading-plan-calculator`, PIT 39/39 mutants killed, PR still to do (A5) |
-| `ReadingStatisticsService` with TDD (C) | Not started |
-| `mutationThreshold`, `docs/mutation-testing.md` (B), `docs/tdd-log.md` (C) | Not started |
+| `ReadingStatisticsService` with TDD (C) | All 13 cycles done on `feature/c-tdd-statistics`, PR open; PIT 27/29, C2 in progress |
+| `mutationThreshold`, `docs/mutation-testing.md` (B) | Not started |
+| `docs/tdd-log.md` (C) | Done on `feature/c-tdd-statistics` |
 
 ---
 
@@ -346,14 +347,14 @@ B has the most hours overall but the least left, so B is also the backup if A or
 - `docs/tdd-log.md`
 
 **Checklist**
-- [ ] C0 Onboarding: pull `main`, run `mvnw test` and PIT locally, open the report. Read `ReadingSession`, `ReadingSessionRepository`, `ReadingSessionService` and its test (the mocking style to follow), and §2.4, §6.3, §7. Ask B about anything unclear.
-- [ ] C1 Branch `feature/c-tdd-statistics`. Follow the TDD cycles in §6.3. **Each phase = one commit**:
+- [x] C0 Onboarding: pull `main`, run `mvnw test` and PIT locally, open the report. Read `ReadingSession`, `ReadingSessionRepository`, `ReadingSessionService` and its test (the mocking style to follow), and §2.4, §6.3, §7. Ask B about anything unclear.
+- [x] C1 Branch `feature/c-tdd-statistics`. Follow the TDD cycles in §6.3. **Each phase = one commit**:
   - `test(red): getAverageWpm returns empty when no sessions` (test fails / does not compile)
   - `feat(green): ...` (minimal code, all tests green)
   - `refactor: ...` (only if something to clean up; tests stay green)
   Run `mvnw test` before every commit and paste the result line (failures/green) in the commit body. CI going red on this branch after a Red commit is expected.
 - [ ] C2 Run PIT on `ReadingStatisticsService` too and get it to 100 %. The rubric doesn't require it, but B's threshold (B6) covers this class.
-- [ ] C3 Write `docs/tdd-log.md`: table *cycle → red commit hash → green commit hash → refactor commit hash → what changed*.
+- [x] C3 Write `docs/tdd-log.md`: table *cycle → red commit hash → green commit hash → refactor commit hash → what changed*.
 - [ ] C4 PR → B reviews → merge **with a merge commit (no squash, no rebase-squash)**, otherwise the TDD history is lost.
 
 ---
