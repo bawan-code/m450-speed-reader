@@ -54,7 +54,7 @@ public class ReadingStatisticsService {
       average = average * 0.90;
     }
     int rounded = (int) Math.round(average / 10.0) * 10;
-    return Math.min(rounded, WpmLimits.MAX_WPM);
+    return Math.max(WpmLimits.MIN_WPM, Math.min(rounded, WpmLimits.MAX_WPM));
   }
 
   // Helper function for getRecommendedWpm. Handles null, so the tests stay green.
