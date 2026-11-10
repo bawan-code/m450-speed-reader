@@ -53,7 +53,8 @@ public class ReadingStatisticsService {
     } else if (score.isPresent() && score.getAsDouble() < 60) {
       average = average * 0.90;
     }
-    return (int) Math.round(average / 10.0) * 10;
+    int rounded = (int) Math.round(average / 10.0) * 10;
+    return Math.min(rounded, WpmLimits.MAX_WPM);
   }
 
   // Helper function for getRecommendedWpm. Handles null, so the tests stay green.
