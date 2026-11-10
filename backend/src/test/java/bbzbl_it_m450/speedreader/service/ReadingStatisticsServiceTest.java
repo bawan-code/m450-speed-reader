@@ -3,6 +3,9 @@ package bbzbl_it_m450.speedreader.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.util.List;
 import java.util.OptionalDouble;
@@ -173,5 +176,16 @@ class ReadingStatisticsServiceTest {
     int result = service.getRecommendedWpm(1L);
 
     assertEquals(WpmLimits.MIN_WPM, result);
+  }
+
+  @Test
+  @DisplayName("getRecommendedWpm uses only the five most recent sessions")
+  void recommendedUsesTopFiveQuery() {
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of());
+
+    service.getRecommendedWpm(1L);
+
+    verify(sessions).findTop5ByUserIdOrderByDateDesc(1L);
+    verify(sessions, never()).findByUserId(any());
   }
 }
