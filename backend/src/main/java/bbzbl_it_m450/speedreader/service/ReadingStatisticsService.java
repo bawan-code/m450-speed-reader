@@ -1,6 +1,7 @@
 package bbzbl_it_m450.speedreader.service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.OptionalDouble;
 
 import org.springframework.stereotype.Service;
@@ -59,18 +60,10 @@ public class ReadingStatisticsService {
 
   // Helper function for getRecommendedWpm. Handles null, so the tests stay green.
   private OptionalDouble averageScore(List<ReadingSession> recent) {
-    int total = 0;
-    int count = 0;
-    for (ReadingSession session : recent) {
-      Integer score = session.getComprehensionScore();
-      if (score != null) {
-        total += score;
-        count++;
-      }
-    }
-    if (count == 0) {
-      return OptionalDouble.empty();
-    }
-    return OptionalDouble.of((double) total / count);
+    return recent.stream()
+        .map(ReadingSession::getComprehensionScore)
+        .filter(Objects::nonNull)
+        .mapToInt(Integer::intValue)
+        .average();
   }
 }
