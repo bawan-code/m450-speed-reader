@@ -152,4 +152,15 @@ class ReadingStatisticsServiceTest {
 
     assertEquals(330, result);
   }
+
+  @Test
+  @DisplayName("getRecommendedWpm never recommends more than the maximum")
+  void recommendedIsClampedToMax() {
+    ReadingSession session = ReadingSession.builder().wpm(1500).comprehensionScore(100).build();
+    when(sessions.findTop5ByUserIdOrderByDateDesc(1L)).thenReturn(List.of(session));
+
+    int result = service.getRecommendedWpm(1L);
+
+    assertEquals(WpmLimits.MAX_WPM, result);
+  }
 }
