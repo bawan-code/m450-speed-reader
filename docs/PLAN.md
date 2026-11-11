@@ -18,9 +18,10 @@ Deadline: oral demo ("Fachgespräch") at the end of **week 3** of the quarter. A
 | Phase 0 foundation | Done (PR #1) |
 | `ReadingSessionService` + tests | Done (PR #2), PIT 31/31 mutants killed |
 | CI with tests, PIT and report artifact | Done, in `.github/workflows/ci.yml` |
-| `ReadingPlanCalculator` + tests (A) | Not started |
-| `ReadingStatisticsService` with TDD (C) | Not started |
-| `mutationThreshold`, `docs/mutation-testing.md` (B), `docs/tdd-log.md` (C) | Not started |
+| `ReadingPlanCalculator` + tests (A) | Done on `feature/a-reading-plan-calculator`, PIT 39/39 mutants killed, PR still to do (A5) |
+| `ReadingStatisticsService` with TDD (C) | All 13 cycles done on `feature/c-tdd-statistics`, PIT 23/23 mutants killed; PR to review (C4) |
+| `mutationThreshold`, `docs/mutation-testing.md` (B) | Not started |
+| `docs/tdd-log.md` (C) | Done on `feature/c-tdd-statistics` |
 
 ---
 
@@ -313,10 +314,10 @@ B has the most hours overall but the least left, so B is also the backup if A or
 - `test/.../service/ReadingPlanCalculatorTest.java`
 
 **Checklist**
-- [ ] A1 Branch `feature/a-reading-plan-calculator`. Create DTO records.
-- [ ] A2 Implement `tokenize`, `orpIndex`, `delayMs`, `createPlan` per §2.2. Keep methods small, no logging, no unreachable branches.
-- [ ] A3 Write `ReadingPlanCalculatorTest` (cases in §6.1) with `@Nested` classes per method and `@ParameterizedTest` for tables (ORP, delay).
-- [ ] A4 Run PIT, open the HTML report, kill every surviving mutant of `ReadingPlanCalculator`. Note each survivor and which test killed it, and give the list to B (input for B7).
+- [x] A1 Branch `feature/a-reading-plan-calculator`. Create DTO records.
+- [x] A2 Implement `tokenize`, `orpIndex`, `delayMs`, `createPlan` per §2.2. Keep methods small, no logging, no unreachable branches.
+- [x] A3 Write `ReadingPlanCalculatorTest` (cases in §6.1) with `@Nested` classes per method and `@ParameterizedTest` for tables (ORP, delay).
+- [x] A4 Run PIT, open the HTML report, kill every surviving mutant of `ReadingPlanCalculator`. Note each survivor and which test killed it, and give the list to B (input for B7).
 - [ ] A5 PR → C reviews → merge.
 
 ### 4.2 Person B – Mocking unit, PIT, CI
@@ -346,14 +347,14 @@ B has the most hours overall but the least left, so B is also the backup if A or
 - `docs/tdd-log.md`
 
 **Checklist**
-- [ ] C0 Onboarding: pull `main`, run `mvnw test` and PIT locally, open the report. Read `ReadingSession`, `ReadingSessionRepository`, `ReadingSessionService` and its test (the mocking style to follow), and §2.4, §6.3, §7. Ask B about anything unclear.
-- [ ] C1 Branch `feature/c-tdd-statistics`. Follow the TDD cycles in §6.3. **Each phase = one commit**:
+- [x] C0 Onboarding: pull `main`, run `mvnw test` and PIT locally, open the report. Read `ReadingSession`, `ReadingSessionRepository`, `ReadingSessionService` and its test (the mocking style to follow), and §2.4, §6.3, §7. Ask B about anything unclear.
+- [x] C1 Branch `feature/c-tdd-statistics`. Follow the TDD cycles in §6.3. **Each phase = one commit**:
   - `test(red): getAverageWpm returns empty when no sessions` (test fails / does not compile)
   - `feat(green): ...` (minimal code, all tests green)
   - `refactor: ...` (only if something to clean up; tests stay green)
   Run `mvnw test` before every commit and paste the result line (failures/green) in the commit body. CI going red on this branch after a Red commit is expected.
-- [ ] C2 Run PIT on `ReadingStatisticsService` too and get it to 100 %. The rubric doesn't require it, but B's threshold (B6) covers this class.
-- [ ] C3 Write `docs/tdd-log.md`: table *cycle → red commit hash → green commit hash → refactor commit hash → what changed*.
+- [x] C2 Run PIT on `ReadingStatisticsService` too and get it to 100 %. The rubric doesn't require it, but B's threshold (B6) covers this class.
+- [x] C3 Write `docs/tdd-log.md`: table *cycle → red commit hash → green commit hash → refactor commit hash → what changed*.
 - [ ] C4 PR → B reviews → merge **with a merge commit (no squash, no rebase-squash)**, otherwise the TDD history is lost.
 
 ---
