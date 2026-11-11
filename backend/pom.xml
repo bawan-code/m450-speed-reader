@@ -111,7 +111,7 @@
 						<param>XML</param>
 					</outputFormats>
 					<timestampedReports>false</timestampedReports>
-					<failWhenNoMutations>false</failWhenNoMutations>
+					<mutationThreshold>100</mutationThreshold>
 				</configuration>
 			</plugin>
 		</plugins>
