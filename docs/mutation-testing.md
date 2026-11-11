@@ -40,11 +40,11 @@ The report is uploaded as the artifact **`pit-report`**: *Actions → run → Su
 | `targetTests` | `bbzbl_it_m450.speedreader.service.*Test` | our unit tests |
 | `mutators` | `DEFAULTS` | PIT's standard set (see §4) |
 | `outputFormats` | HTML, XML | HTML for the demo, XML for evaluation |
-| `mutationThreshold` | 100 *(enabled at the end of week 2)* | the build fails if a single mutant survives |
+| `mutationThreshold` | 100 | the build (and CI) fails as soon as a single mutant survives |
 
 ## 4. Mutators with examples from our code
 
-PIT 1.23 `DEFAULTS` produced the following mutators.
+PIT 1.23 `DEFAULTS` produced the following mutators. *Killed by* is the test PIT reports as the first one that killed the mutant.
 
 ### 4.1 `ReadingSessionService` (Part 1)
 
@@ -67,30 +67,69 @@ Result: **31 mutants, 31 killed, 100 %** (line coverage 58/58).
 
 ### 4.2 `ReadingPlanCalculator` (Part 2, A)
 
-*To be filled in from A's PIT report (A4: list of survivors and the test that killed each).*
+| Mutator | What it changes | Example from our code | Killed by |
+|---|---|---|---|
+| `CONDITIONALS_BOUNDARY` | `<` ↔ `<=`, `>` ↔ `>=` | `core.length() > 8` → `core.length() >= 8` | `lengthIgnoresPunctuation` |
+| | | `coreLength <= 5` → `coreLength < 5` | `usesOffsetForCoreLength` (`hello` → ORP 1) |
+| `REMOVE_CONDITIONALS_ORDER_ELSE` | replaces a `<` / `>` comparison with `false` | `if (coreLength <= 1) return 0;` → never returns 0 | `usesOffsetForCoreLength` (`a` → ORP 0) |
+| `REMOVE_CONDITIONALS_EQUAL_ELSE` | replaces a `==` / `!=` check with `false` | `if (text == null)` → never throws `IllegalArgumentException` | `rejectsNull` (expects `IllegalArgumentException`, the mutant gives a `NullPointerException`) |
+| | | `if (word.matches(".*[.!?]"))` → never adds the sentence pause | `sentenceEnd` |
+| `MATH` | `+` ↔ `-`, `*` ↔ `/` | `MS_PER_MINUTE / wpm` → `MS_PER_MINUTE * wpm` | `longWord` (exact ms value) |
+| | | `factor += 1.0` → `factor -= 1.0` | `sentenceEnd` (`word.` → 400 ms) |
+| | | `word.indexOf(core) + orpOffset(...)` → `-` | `usesOffsetForCoreLength` |
+| `PRIMITIVE_RETURNS` | returns `0` instead of a number | `orpOffset` returns `0` instead of `4` | `usesOffsetForCoreLength` (`internationals` → 4) |
+| | | `delayMs` returns `0` | `longWord` |
+| `TRUE_RETURNS` | a `boolean` lambda always returns `true` | filter `!core(token).isEmpty()` always `true` | `dropsPunctuationOnlyTokens` (`-` and `...` must be dropped) |
+| `EMPTY_RETURNS` | returns an empty value | `tokenize` returns `Collections.emptyList()` | `keepsHyphenatedWords` |
+| | | `core(...)` returns `""` | `usesOffsetForCoreLength` |
+| `NULL_RETURNS` | returns `null` instead of an object | `createPlan` returns `null` | `createsPlan` |
+| `VOID_METHOD_CALLS` | removes a call to a `void` method | removes `validateWpm(wpm)` in `createPlan` | `rejectsInvalidWpmWithEmptyText` (with empty text `delayMs` is never called, so only this check can throw) |
 
-| Mutator | Example from our code | Killed by |
-|---|---|---|
-| `CONDITIONALS_BOUNDARY` | | |
-| `MATH` | | |
-| `INCREMENTS` | | |
-| `PRIMITIVE_RETURNS` | | |
-| `TRUE_RETURNS` / `FALSE_RETURNS` | | |
-| `EMPTY_RETURNS` | | |
+### 4.3 `ReadingStatisticsService` (Part 4, C)
 
-### 4.3 `ReadingStatisticsService` (Part 4, C – bonus)
+| Mutator | What it changes | Example from our code | Killed by |
+|---|---|---|---|
+| `CONDITIONALS_BOUNDARY` | `<` ↔ `<=`, `>` ↔ `>=` | `score >= 80` → `score > 80` | `recommendedBoundaryAtScore80` (score 80 → 330) |
+| | | `score < 60` → `score <= 60` | `recommendedSlowsDownForBadComprehension` (score 60 → 300) |
+| `REMOVE_CONDITIONALS_EQUAL_ELSE` | replaces a `==` / `!=` check with `false` | `if (list.isEmpty())` → never returns early | `averageIsEmptyWhenNoSessions` (the mutant returns `NaN` instead of empty) |
+| `REMOVE_CONDITIONALS_ORDER_ELSE` | replaces a `<` / `>` comparison with `false` | `score >= 80` → `false` (never speeds up) | `recommendedSpeedsUpForGoodComprehension` |
+| `MATH` | `+` ↔ `-`, `*` ↔ `/` | `totalSeconds / 60.0` → `totalSeconds * 60.0` | `averageOfOneSession` (300 words / 60 s → 300.0) |
+| | | `totalWords / totalMinutes` → `*` | `averageOfSeveralSessions` |
+| | | `average * 1.10` → `average / 1.10` | `recommendedIsClampedToMax` (1500 × 1.1 is clamped to 1500, the mutant gives 1360) |
+| | | `Math.round(average / 10.0) * 10` → `average * 10.0` | `recommendedIsAverageOfRecentWpm` (→ 310) |
+| `PRIMITIVE_RETURNS` | returns `0` instead of a number | `getRecommendedWpm` returns `0` | `recommendedIsAverageOfRecentWpm` |
+| `NULL_RETURNS` | returns `null` instead of an object | `return OptionalDouble.of(...)` → `return null` | `averageOfOneSession` |
 
-*To be filled in once C's TDD branch is merged.*
+**Equivalent mutant (example for the demo):** in an earlier version, the helper `averageScore` had an `if (count == 0)` check. Removing it (`REMOVE_CONDITIONALS_EQUAL_ELSE`) changed nothing: `0 / 0` is `NaN`, and `NaN >= 80` and `NaN < 60` are both `false`, so no test could ever kill this mutant. Instead of accepting less than 100 %, the code was refactored to `IntStream.average()`, which returns empty by itself, so the check (and the mutant) disappeared. Details: [tdd-log.md](tdd-log.md).
 
 ## 5. Results
+
+Run on 11.11.2026, PIT 1.23.0, 113 unit tests green.
 
 | Class | Owner | Mutants | Killed | Score |
 |---|---|---|---|---|
 | `ReadingSessionService` | B | 31 | 31 | **100 %** |
-| `ReadingPlanCalculator` | A | – | – | – |
-| `ReadingStatisticsService` | C | – | – | – |
+| `ReadingPlanCalculator` | A | 39 | 39 | **100 %** |
+| `ReadingStatisticsService` | C | 23 | 23 | **100 %** |
+| **Total** | | **93** | **93** | **100 %** |
 
-*Screenshot of the final report with all classes at 100 % goes here (after B6).*
+Line coverage of the mutated classes: 131/131 (100 %). Test strength: 100 %.
+
+| Mutator | Generated | Killed |
+|---|---|---|
+| `MATH` | 18 | 18 |
+| `CONDITIONALS_BOUNDARY` | 16 | 16 |
+| `REMOVE_CONDITIONALS_ORDER_ELSE` | 16 | 16 |
+| `REMOVE_CONDITIONALS_EQUAL_ELSE` | 13 | 13 |
+| `NULL_RETURNS` | 12 | 12 |
+| `PRIMITIVE_RETURNS` | 8 | 8 |
+| `VOID_METHOD_CALLS` | 6 | 6 |
+| `EMPTY_RETURNS` | 3 | 3 |
+| `TRUE_RETURNS` | 1 | 1 |
+
+Since `mutationThreshold` is 100, CI fails as soon as one of these mutants survives.
+
+![PIT report with all classes at 100 %](images/pit-report.png)
 
 ## 6. Lessons learned
 

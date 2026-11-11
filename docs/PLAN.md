@@ -18,9 +18,9 @@ Deadline: oral demo ("Fachgespräch") at the end of **week 3** of the quarter. A
 | Phase 0 foundation | Done (PR #1) |
 | `ReadingSessionService` + tests | Done (PR #2), PIT 31/31 mutants killed |
 | CI with tests, PIT and report artifact | Done, in `.github/workflows/ci.yml` |
-| `ReadingPlanCalculator` + tests (A) | Done on `feature/a-reading-plan-calculator`, PIT 39/39 mutants killed, PR still to do (A5) |
-| `ReadingStatisticsService` with TDD (C) | All 13 cycles done on `feature/c-tdd-statistics`, PIT 23/23 mutants killed; PR to review (C4) |
-| `mutationThreshold`, `docs/mutation-testing.md` (B) | Not started |
+| `ReadingPlanCalculator` + tests (A) | Done (merged into `main`), PIT 39/39 mutants killed |
+| `ReadingStatisticsService` with TDD (C) | Done (PR #6), all 13 cycles, PIT 23/23 mutants killed |
+| `mutationThreshold`, `docs/mutation-testing.md` (B) | Threshold 100 active, PIT 93/93 killed; doc written on `chore/b-mutation-docs` |
 | `docs/tdd-log.md` (C) | Done on `feature/c-tdd-statistics` |
 
 ---
@@ -334,9 +334,9 @@ B has the most hours overall but the least left, so B is also the backup if A or
 - [x] B2 Write `ReadingSessionServiceTest` (cases in §6.2): `@ExtendWith(MockitoExtension.class)`, `@Mock` for the 4 repositories, `Clock.fixed(...)`, service built manually in `@BeforeEach` (because Clock is not a mock). Use `ArgumentCaptor`, `verify`, `verify(..., never())`, `verifyNoInteractions`, `assertThrows`.
 - [x] B3 Run PIT, kill every surviving mutant of `ReadingSessionService`.
 - [x] B4 PR → merge.
-- [ ] B5 Check on GitHub that CI runs tests + PIT on every push and that the `pit-report` artifact is downloadable. Optionally add a status badge in `README.md` (branch `chore/b-ci-pit`).
+- [x] B5 Check on GitHub that CI runs tests + PIT on every push and that the `pit-report` artifact is downloadable. Optionally add a status badge in `README.md` (branch `chore/b-ci-pit`).
 - [ ] B6 End of week 2, after A's and C's units are merged at 100 %: enable `<mutationThreshold>100</mutationThreshold>` so CI fails if a mutant survives. The threshold covers all `targetClasses`, so **it must come after both merges**. If `ReadingStatisticsService` cannot reach 100 % in time, remove it from `targetClasses` instead of lowering the threshold. Verify by temporarily deleting one assertion locally (CI must go red).
-- [ ] B7 Write `docs/mutation-testing.md`: list of PIT DEFAULTS mutators with one concrete example **from our code** each (see §7.1), how to run PIT, where the report is, screenshot of 100 %.
+- [x] B7 Write `docs/mutation-testing.md`: list of PIT DEFAULTS mutators with one concrete example **from our code** each (see §7.1), how to run PIT, where the report is, screenshot of 100 %.
 - [ ] B8 Prepare the demo trick and own the final checklist (§8).
 
 ### 4.3 Person C – TDD
@@ -540,12 +540,12 @@ Each row = one Red → Green (→ Refactor) cycle, in this order.
 - [ ] Every test has a descriptive name (`@DisplayName` or `should…_when…`) and Arrange / Act / Assert structure.
 
 **Mutation testing**
-- [ ] PIT runs without errors: `mvnw org.pitest:pitest-maven:mutationCoverage`.
-- [ ] `ReadingPlanCalculator` 100 % mutation score.
-- [ ] `ReadingSessionService` 100 % mutation score.
-- [ ] `ReadingStatisticsService` 100 % (not required by the rubric, needed for the threshold, see B6).
-- [ ] HTML report available locally (`backend/target/pit-reports/index.html`) **and** as CI artifact; screenshot in `docs/mutation-testing.md`.
-- [ ] `mutationThreshold=100` active.
+- [x] PIT runs without errors: `mvnw org.pitest:pitest-maven:mutationCoverage`.
+- [x] `ReadingPlanCalculator` 100 % mutation score.
+- [x] `ReadingSessionService` 100 % mutation score.
+- [x] `ReadingStatisticsService` 100 % (not required by the rubric, needed for the threshold, see B6).
+- [x] HTML report available locally (`backend/target/pit-reports/index.html`) **and** as CI artifact; screenshot in `docs/mutation-testing.md`.
+- [x] `mutationThreshold=100` active.
 
 **Automation**
 - [ ] GitHub Actions green on the latest `main` commit, runs `test` + PIT on every push.
