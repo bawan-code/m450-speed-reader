@@ -90,7 +90,7 @@ Branch `chore/b-mysql-integration`. A and C review the PR together (that is how 
 - [ ] 0.2 `src/main/resources/db/migration/V1__init.sql`: the 4 tables exactly as the entities define them (PKs, FKs `user_id`/`text_id`, `NOT NULL`, unique (`user_id`, `text_id`) on `bookmarks`, `LONGTEXT` for `content`, `utf8mb4`). **No extra CHECK constraints** – the schema must match today's code, so the tests show the real state.
 - [ ] 0.3 `application.properties`: datasource for local MySQL (`jdbc:mysql://localhost:3306/speedreader`, user/password from env vars with defaults), `spring.jpa.hibernate.ddl-auto=validate`, `spring.flyway.enabled=true`.
 - [ ] 0.4 `docker-compose.yml` in the repo root: `mysql:9.7`, database `speedreader`, port 3306, volume. For starting the app by hand, not for the tests.
-- [ ] 0.5 `src/test/java/.../integration/AbstractMySqlIT.java`: `@SpringBootTest`, `@Testcontainers`, one static `MySQLContainer<?>("mysql:9.7")` with `@ServiceConnection`, `@BeforeEach` that empties the tables, small helper methods `createUser()`, `createText(int wordCount)`.
+- [ ] 0.5 `src/test/java/.../integration/AbstractMySqlIT.java`: `@SpringBootTest`, one static **singleton** `MySQLContainer<?>("mysql:9.7")` with `@ServiceConnection`, started in a static block (see §4), `@BeforeEach` that empties the tables, small helper methods `createUser()`, `createText(int wordCount)`.
 - [ ] 0.6 `src/test/resources/application-test.properties`: short timeouts so failure tests don't hang (`spring.datasource.hikari.connection-timeout=2000`, `validation-timeout=1000`).
 - [ ] 0.7 Smoke test `ConnectionSmokeIT`: context starts, Flyway ran, the 4 tables exist. Run locally: `.\mvnw.cmd verify`.
 - [ ] 0.8 CI: replace the step `./mvnw -B test` with `./mvnw -B verify` (unit + integration tests), keep PIT after it, upload `backend/target/failsafe-reports/` as artifact **`integration-test-report`**.
@@ -108,11 +108,14 @@ After 0.10, A, B and C work independently.
 ```java
 // src/test/java/bbzbl_it_m450/speedreader/integration/AbstractMySqlIT.java (B, Phase 0)
 @SpringBootTest
-@Testcontainers
 @ActiveProfiles("test")
 public abstract class AbstractMySqlIT {
-    @Container @ServiceConnection
+    // Singleton container: started once for ALL IT classes, stopped by Testcontainers at JVM end.
+    // Not @Container: that would stop it after the first class while Spring's cached context
+    // still points to its port -> the next IT class fails with connection errors.
+    @ServiceConnection
     static final MySQLContainer<?> MYSQL = new MySQLContainer<>("mysql:9.7");
+    static { MYSQL.start(); }
 
     @Autowired protected JdbcTemplate jdbc;          // for checks directly in the DB
     @Autowired protected UserRepository users;
