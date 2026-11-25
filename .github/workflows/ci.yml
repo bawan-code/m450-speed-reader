@@ -27,8 +27,10 @@ jobs:
       - name: Make Maven Wrapper executable
         run: chmod +x mvnw
 
-      - name: Run unit tests
-        run: ./mvnw -B test
+      # LB2: verify = unit tests (surefire, *Test) + integration tests (failsafe, *IT).
+      # The integration tests start MySQL with Testcontainers; the runner has Docker built in.
+      - name: Run unit and integration tests
+        run: ./mvnw -B verify
 
       - name: Run mutation tests (PIT)
         run: ./mvnw -B org.pitest:pitest-maven:mutationCoverage
@@ -39,4 +41,12 @@ jobs:
         with:
           name: pit-report
           path: backend/target/pit-reports/
+          if-no-files-found: ignore
+
+      - name: Upload integration test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: integration-test-report
+          path: backend/target/failsafe-reports/
           if-no-files-found: ignore
