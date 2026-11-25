@@ -1,0 +1,19 @@
+# Local MySQL for starting the backend by hand: docker compose up -d
+# Not used by the integration tests - Testcontainers starts its own MySQL.
+# Port 3307 on the host, so it doesn't clash with a local MySQL/XAMPP on 3306.
+# The passwords are local development defaults, not secrets.
+services:
+  mysql:
+    image: mysql:9.7
+    environment:
+      MYSQL_DATABASE: speedreader
+      MYSQL_USER: speedreader
+      MYSQL_PASSWORD: speedreader
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "127.0.0.1:3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:
